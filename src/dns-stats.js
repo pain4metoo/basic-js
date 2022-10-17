@@ -22,9 +22,33 @@ const { NotImplementedError } = require('../extensions/index.js');
  * }
  *
  */
-function getDNSStats(/* domains */) {
-  throw new NotImplementedError('Not implemented');
-  // remove line with error and write your code here
+function getDNSStats(domains) {
+  let result = {};
+  domains.forEach((item) => {
+    let dotsCounter = item.split('').reduce((acc, next) => acc += next === '.' ? 1 : 0, 0);
+    let DNS1 = item.split('').slice(item.lastIndexOf('.') + 1).join('')
+    let DNS2 = item.split('').map((item, index, arr) => dotsCounter === 1 ? index < arr.indexOf('.') ? item : false : index > arr.indexOf('.') && index < arr.lastIndexOf('.') ? item : false).filter(item => item).join('')
+    let DNS3 = item.split('').slice(dotsCounter === 1 ? -1 : 0, item.indexOf('.')).join('')
+    if (!result[`.${DNS1}`]) {
+      result[`.${DNS1}`] = 1;
+    } else {
+      result[`.${DNS1}`]++
+    }
+    if (!result[`.${DNS1}.${DNS2}`]) {
+      result[`.${DNS1}.${DNS2}`] = 1;
+    } else {
+      result[`.${DNS1}.${DNS2}`]++
+    }
+    if (!result[`.${DNS1}.${DNS2}.${DNS3}`] && DNS3.length > 0) {
+      result[`.${DNS1}.${DNS2}.${DNS3}`] = 1;
+    } else {
+      if (DNS3.length > 0) {
+        result[`.${DNS1}.${DNS2}.${DNS3}`]++
+      }
+    }
+  })
+
+  return result
 }
 
 module.exports = {
